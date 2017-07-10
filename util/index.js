@@ -7,15 +7,20 @@ var Auth = require('basic-auth')
 var executor = require('child_process').exec
 
 exports.basicAuth = function basicAuth (req, res, next) {
-  var myAuth = Auth(req)
-  if (myAuth && (myAuth.name === req.app.locals.auth.user) && (myAuth.pass === req.app.locals.auth.password)) {
+  if (req.app.locals.auth.standalone) {
+    var myAuth = Auth(req)
+    if (myAuth && (myAuth.name === req.app.locals.auth.user) && (myAuth.pass === req.app.locals.auth.password)) {
+      res.locals.authorized = true
+      next()
+    } else {
+      res.statusCode = 401
+      debug('basicAuth credential request (401)')
+      res.setHeader('WWW-Authenticate', 'Basic realm="WebSSH"')
+      res.end('Username and password required for web SSH service.')
+    }
+  } else {
     res.locals.authorized = true
     next()
-  } else {
-    res.statusCode = 401
-    debug('basicAuth credential request (401)')
-    res.setHeader('WWW-Authenticate', 'Basic realm="WebSSH"')
-    res.end('Username and password required for web SSH service.')
   }
 }
 

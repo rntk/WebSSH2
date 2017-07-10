@@ -6,7 +6,8 @@
   "auth": {
     "user": "user",
     "password": "pass",
-    "credentials": "/path/bin/get_credentials"
+    "credentials": "/path/bin/get_credentials",
+    "standalone": false
   },
   "user": {
     "name": null,
