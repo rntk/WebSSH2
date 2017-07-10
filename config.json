@@ -3,6 +3,11 @@
     "ip": "127.0.0.1",
     "port": 2222
   },
+  "auth": {
+    "user": "user",
+    "password": "pass",
+    "credentials": "/path/bin/get_credentials"
+  },
   "user": {
     "name": null,
     "password": null

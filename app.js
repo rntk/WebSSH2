@@ -20,38 +20,46 @@ var socket = require('./socket')
 var expressOptions = require('./expressOptions')
 
 // express
+app.locals.auth = config.auth
 app.use(session)
 app.use(myutil.basicAuth)
+// app.use(myutil.sshAuth)
 if (config.accesslog) app.use(logger('common'))
 app.disable('x-powered-by')
 
 // static files
 app.use(express.static(path.join(__dirname, 'public'), expressOptions))
 
-app.get('/ssh/host/:host?', function (req, res, next) {
+app.get('/ssh/host/:host?', myutil.sshAuth, function (req, res, next) {
   res.sendFile(path.join(path.join(__dirname, 'public', (config.useminified)
     ? 'client-min.htm' : 'client-full.htm')))
   // capture, assign, and validated variables
-  req.session.ssh = {
-    host: (validator.isIP(req.params.host + '') && req.params.host) ||
-      (validator.isFQDN(req.params.host) && req.params.host) ||
-      (/^(([a-z]|[A-Z]|[0-9]|[!^(){}\-_~])+)?\w$/.test(req.params.host) &&
-      req.params.host) || config.ssh.host,
-    port: (validator.isInt(req.query.port + '', {min: 1, max: 65535}) &&
-      req.query.port) || config.ssh.port,
-    header: {
-      name: req.query.header || config.header.text,
-      background: req.query.headerBackground || config.header.background
-    },
-    algorithms: config.algorithms,
-    term: (/^(([a-z]|[A-Z]|[0-9]|[!^(){}\-_~])+)?\w$/.test(req.query.sshterm) &&
-      req.query.sshterm) || config.ssh.term,
-    allowreplay: validator.isBoolean(req.headers.allowreplay + '') || false,
-    serverlog: {
-      client: config.serverlog.client || false,
-      server: config.serverlog.server || false
-    }
+  if (!req.session.ssh) {
+    req.session.ssh = {}
   }
+  req.session.ssh = Object.assign(
+      req.session.ssh,
+    {
+      host: (validator.isIP(req.params.host + '') && req.params.host) ||
+        (validator.isFQDN(req.params.host) && req.params.host) ||
+        (/^(([a-z]|[A-Z]|[0-9]|[!^(){}\-_~])+)?\w$/.test(req.params.host) &&
+        req.params.host) || config.ssh.host,
+      port: (validator.isInt(req.query.port + '', {min: 1, max: 65535}) &&
+        req.query.port) || config.ssh.port,
+      header: {
+        name: req.query.header || config.header.text,
+        background: req.query.headerBackground || config.header.background
+      },
+      algorithms: config.algorithms,
+      term: (/^(([a-z]|[A-Z]|[0-9]|[!^(){}\-_~])+)?\w$/.test(req.query.sshterm) &&
+        req.query.sshterm) || config.ssh.term,
+      allowreplay: validator.isBoolean(req.headers.allowreplay + '') || false,
+      serverlog: {
+        client: config.serverlog.client || false,
+        server: config.serverlog.server || false
+      }
+    }
+  )
   req.session.ssh.header.name && validator.escape(req.session.ssh.header.name)
   req.session.ssh.header.background &&
     validator.escape(req.session.ssh.header.background)
