@@ -26,7 +26,7 @@ module.exports = function socket (socket) {
     socket.emit('data', data.toString('utf-8'))
   })
 
-  conn.on('ready', function connOnReady () {console.log(socket.request.ssh)
+  conn.on('ready', function connOnReady () {
     console.log('WebSSH2 Login: user=' + socket.request.session.ssh.user + ' from=' + socket.handshake.address + ' host=' + socket.request.session.ssh.host + ' port=' + socket.request.session.ssh.port + ' sessionID=' + socket.request.sessionID + '/' + socket.id + ' allowreplay=' + socket.request.session.ssh.allowreplay + ' term=' + socket.request.session.ssh.term)
     socket.emit('title', 'ssh://' + socket.request.session.ssh.host)
     socket.request.session.ssh.header.background && socket.emit('headerBackground', socket.request.session.ssh.header.background)

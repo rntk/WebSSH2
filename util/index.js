@@ -10,8 +10,6 @@ exports.basicAuth = function basicAuth (req, res, next) {
   var myAuth = Auth(req)
   if (myAuth && (myAuth.name === req.app.locals.auth.user) && (myAuth.pass === req.app.locals.auth.password)) {
     res.locals.authorized = true
-    req.session.username = req.app.locals.auth.user
-    req.session.userpassword = req.app.locals.auth.password
     next()
   } else {
     res.statusCode = 401
@@ -36,7 +34,6 @@ exports.sshAuth = function sshAuth (req, res, next) {
             }
             req.session.ssh.user = auth.login
             req.session.ssh.password = auth.password
-            console.log(req.session.ssh)
             next()
           } catch (e) {
             debug('Can`t parse ssh auth configuration. Info: ' + e.message)
