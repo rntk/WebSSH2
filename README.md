@@ -42,6 +42,12 @@ You will be prompted for credentials to use on the SSH server via HTTP Basic aut
 
 * **listen.port** - _integer_ - Port node should listen on for client connections, defaults to `2222`
 
+* **auth.user** - _string_ - User name for access to service
+ 
+* **auth.password** - _string_ - Password for access to service
+
+* **auth.credentials** - _string_ - Command to execute which will return JSON - `{"login": "ssh_login", "password": "ssh_password"}`. It is for fetching ssh credentials which will be used for connection to the host.
+
 * **user.name** - _string_ - Specify user name to authenticate with. In normal cases this should be left to the default `null` setting.
 
 * **user.password** - _string_ - Specify password to authenticate with. In normal cases this should be left to the default `null` setting.
