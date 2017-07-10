@@ -48,6 +48,8 @@ You will be prompted for credentials to use on the SSH server via HTTP Basic aut
 
 * **auth.credentials** - _string_ - Command to execute which will return JSON - `{"login": "ssh_login", "password": "ssh_password"}`. It is for fetching ssh credentials which will be used for connection to the host.
 
+* **auth.standalone** - _boolean_ - If false then do not ask authorization. For cases when node run behind Nginx+basic auth.
+
 * **user.name** - _string_ - Specify user name to authenticate with. In normal cases this should be left to the default `null` setting.
 
 * **user.password** - _string_ - Specify password to authenticate with. In normal cases this should be left to the default `null` setting.
