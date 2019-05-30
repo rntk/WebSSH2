@@ -6,6 +6,7 @@
 require('colors') // allow for color property extensions in log messages
 var debug = require('debug')('WebSSH2')
 var Auth = require('basic-auth')
+var executor = require('child_process').exec
 
 exports.basicAuth = function basicAuth (req, res, next) {
   var myAuth = Auth(req)
@@ -27,4 +28,31 @@ exports.basicAuth = function basicAuth (req, res, next) {
 // takes a string, makes it boolean (true if the string is true, false otherwise)
 exports.parseBool = function parseBool (str) {
   return (str.toLowerCase() === 'true')
+}
+
+exports.sshAuth = function sshAuth (req, res, next) {
+  if (req.app.locals.auth.credentials) {
+    executor(req.app.locals.auth.credentials + ' ' + req.params.host, function (error, stdout, stderr) {
+      if (error) {
+        debug('Can`t get ssh auth configuration')
+        res.end('Can`t get ssh auth configuration')
+      } else {
+        try {
+          var auth = JSON.parse(stdout)
+          if (!req.session) {
+            req.session = {}
+          }
+          req.session.username = auth.login
+          req.session.userpassword = auth.password
+          next()
+        } catch (e) {
+          debug('Can`t parse ssh auth configuration. Info: ' + e.message)
+          res.end('Can`t get ssh auth configuration')
+        }
+      }
+    })
+  } else {
+    debug('Wrong ssh auth configuration')
+    res.end('Wrong ssh auth configuration')
+  }
 }

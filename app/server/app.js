@@ -9,6 +9,7 @@ var publicPath = path.join(nodeRoot, 'client', 'public')
 console.log('WebSSH2 service reading config from: ' + configPath)
 var express = require('express')
 var logger = require('morgan')
+var fs = require('fs')
 
 // sane defaults if config.json or parts are missing
 let config = {
@@ -18,7 +19,8 @@ let config = {
   },
   'user': {
     'name': null,
-    'password': null
+    'password': null,
+    'credentials': null
   },
   'ssh': {
     'host': null,
@@ -116,9 +118,10 @@ var socket = require('./socket')
 var expressOptions = require('./expressOptions')
 
 // express
+app.locals.auth = config.user
 app.use(compression({ level: 9 }))
 app.use(session)
-app.use(myutil.basicAuth)
+// app.use(myutil.basicAuth)
 if (config.accesslog) app.use(logger('common'))
 app.disable('x-powered-by')
 
@@ -130,10 +133,10 @@ app.get('/reauth', function (req, res, next) {
   res.status(401).send('<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=' + r + '"></head><body bgcolor="#000"></body></html>')
 })
 
-app.get('/ssh/host/:host?', function (req, res, next) {
+app.get('/ssh/host/:host?', myutil.sshAuth, function (req, res, next) {
   res.sendFile(path.join(path.join(publicPath, 'client.htm')))
   // capture, assign, and validated variables
-  req.session.ssh = {
+  req.session.ssh =  {
     host: (validator.isIP(req.params.host + '') && req.params.host) ||
       (validator.isFQDN(req.params.host) && req.params.host) ||
       (/^(([a-z]|[A-Z]|[0-9]|[!^(){}\-_~])+)?\w$/.test(req.params.host) &&
